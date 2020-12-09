@@ -1,4 +1,4 @@
 Marketplace app -- buy and sell anything!
 
-Backend in Node
+Backend in Node.
 React frontend coming soon!
