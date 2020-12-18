@@ -1,13 +1,14 @@
 import React, {Component} from 'react'
 
+//redux
+import {connect} from 'react-redux'
+
 //components
-import Feed from './feed'
-import AddPost from './addPost'
+import BanForm from './banForm'
 
+class AdminHome extends Component {
 
-class Home extends Component {
-
-    state= {
+    state = {
         loading: true
     }
 
@@ -17,10 +18,6 @@ class Home extends Component {
         })
     }
 
-    //routes to conversation when a message is sent to a poster
-    routeToMessages = (id) => {
-        this.props.history.push('/messages/' + id)
-    }
 
     render() {
         if (this.state.loading) {
@@ -33,11 +30,20 @@ class Home extends Component {
 
         return(
             <div className='container min-vh-100'>
-                <AddPost/>
-                <Feed routeToMessages={this.routeToMessages}/>
+                <h2 className='font-weight-bold m-5'>
+                    ADMIN HOME
+                </h2>
+                
+                <BanForm />
             </div>
         )
     }
  }
 
-export default Home
+ function mapStateToProps(storeState) {
+    return {
+        user: storeState.user
+    }
+}
+
+export default connect(mapStateToProps)(AdminHome)

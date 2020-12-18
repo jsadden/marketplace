@@ -18,6 +18,10 @@ var conversationSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
+    datePosted: {
+        type: Date,
+        default: Date.now
+    },
     messages: [{
         sentByUser1: {
             type: Boolean,

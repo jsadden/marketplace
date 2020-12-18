@@ -1,0 +1,26 @@
+export const USER_LOGIN = 'user_login'
+export const USER_LOGOUT = 'user_logout'
+export const USER_AUTH = 'user_auth'
+export const USER_SIGNUP = 'user_signup'
+export const USER_CHANGENAME = 'user_changename'
+export const USER_CHANGECITY = 'user_changecity'
+export const USER_CHANGEPASS = 'user_changepass'
+export const USER_DELETE = 'user_delete'
+export const USER_BAN = 'user_ban'
+
+
+export const POST_GET_BY_CITY = 'post_get_by_city'
+export const POST_GET_BY_USER = 'post_get_by_user'
+export const POST_ADD = 'post_add'
+export const POST_EDIT = 'post_edit'
+export const POST_DELETE = 'post_delete'
+
+
+export const CONVERSATION_ADD = 'conversation_add'
+export const CONVERSATION_GET_ONE = 'conversation_get_one'
+export const CONVERSATION_ADD_MESSAGE = 'conversation_add_message'
+export const CONVERSATION_GET_ALL = 'conversation_get_all'
+export const CONVERSATION_GET_BY_ID = 'conversation_get_by_id'
+export const CONVERSATION_DELETE_PATCH = 'conversation_delete_patch'
+export const CONVERSATION_DELETE_GET = 'conversation_delete_get'
+export const CONVERSATION_DELETE = 'conversation_delete'

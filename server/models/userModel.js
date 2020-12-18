@@ -39,6 +39,10 @@ var userSchema = mongoose.Schema({
     },
     bannedUntil: {
         type: Date
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 })
 

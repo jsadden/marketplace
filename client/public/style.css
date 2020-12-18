@@ -1,0 +1,75 @@
+html, body, .root {
+    height: 100%;
+    margin:0;
+    padding:0;
+    font-family: 'Raleway';
+    color: #353f44;
+    overflow-x: hidden;
+}
+
+.light-text {
+    color: #e4e4e4;
+}
+.active {
+    color: #ae99bd;
+    text-decoration: none;
+}
+nav a:hover {
+    text-decoration: none;
+    color: #ae99bd;
+}
+
+.fill {
+    height: 100%;
+    min-height: 100vh;
+}
+.fill-80 {
+    height: 80%;
+    min-height: 80vh;
+}
+.vertical-center {
+    min-height: 100%;
+    min-height: 100vh; 
+    display: flex;
+    align-items: center;
+}
+
+.boxy {
+    border: 1px solid black
+}
+
+.header {
+    background-color: #6000a0;
+    
+}
+.footer {
+    background-color: #2d2b2e;
+}
+
+.btn-primary {
+    background-color: #6000a0;
+    border-color: #6000a0;
+}
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: #9068ac;
+    border-color: #9068ac;
+    box-shadow: #ae99bd;
+}
+
+
+.form-control:focus {
+    border-color: #9068ac;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(229, 184, 243, 0.8);
+}
+
+.message-from {
+    display: inline-block;
+    background-color: #d3ace6;
+}
+
+.message-to {
+    display: inline-block;
+    background-color: #adadad;
+}

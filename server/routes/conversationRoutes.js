@@ -21,11 +21,55 @@ router.post('/add', AuthMiddleware, (req,res) => {
     })
 })
 
+//get existing conversation
+router.get('/getConversation', AuthMiddleware, (req,res) => {
+
+    //get if a conversation exists between users 1 and 2
+    Conversation.findOne({
+        $or: [ 
+            {$and: [{user1: req.user.email}, {user2: req.query.email}]},
+            {$and: [{user1: req.query.email}, {user2: req.user.email}]}   
+        ]
+    
+    }, (err, con) => {
+        if (err) return res.json({success:false, message: 'Something went wrong', conversation: false})
+
+        if (!con) return res.json({success:false, message: 'No conversation found', conversation: false})
+
+        return res.json({success:true, message: 'Conversation found', conversation: con})
+    })
+})
+
+//get existing conversation
+router.get('/getConversationById', AuthMiddleware, (req,res) => {
+
+    //get if a conversation exists between users 1 and 2
+    Conversation.findOne({
+        $or: [ 
+            {$and: [{user1: req.user.email}, {_id: req.query.id}]},
+            {$and: [{user2: req.user.email}, {_id: req.query.id}]}   
+        ]
+    
+    }, (err, con) => {
+        if (err) return res.json({success:false, message: 'Something went wrong', conversation: false})
+
+        if (!con) return res.json({success:false, message: 'No conversation found', conversation: false})
+
+        return res.json({success:true, message: 'Conversation found', conversation: con})
+    })
+})
+
 //get conversations by user
-router.get('/getConversations', AuthMiddleware, (req,res) => {
+router.get('/getConversationsByUser', AuthMiddleware, (req,res) => {
 
     //get if user1 of user2 matches the logged in user's email
-    Conversation.find({$or: [{user1: req.user.email}, {user2: req.user.email}]}, (err, cons) => {
+    Conversation.find({
+        $or: [
+            {$and: [{user1: req.user.email}, {deletedByUser1: false}]}, 
+            {$and: [{user2: req.user.email}, {deletedByUser2: false}]},
+        ]})
+    .sort({datePosted: -1})
+    .exec((err, cons) => {
         if (err) return res.json({success:false, message: 'Something went wrong', conversation: false})
 
         return res.json({success:true, message: 'Conversations found', conversation: cons})
@@ -99,6 +143,7 @@ router.post('/addMessage', AuthMiddleware, (req,res) => {
     Conversation.findOne({_id: req.body.id}, (err,con) => {
         if (err) return res.json({success:false, message: 'Something went wrong', conversation: false})
 
+        if (!con) return res.json({success:false, message: 'No conversation found', conversation: false})
 
         //if sender is user1
         let isUser1
@@ -114,7 +159,8 @@ router.post('/addMessage', AuthMiddleware, (req,res) => {
 
         const newMessage = {
             sentByUser1: isUser1,
-            message: req.body.message
+            message: req.body.message,
+            datePosted: Date.now()
         }
 
         con.messages.push(newMessage)

@@ -6,7 +6,7 @@ const dotenv = require('dotenv')
 const result = dotenv.config()
 if (result.error) throw result.error
 
-app.use(express.json())
+app.use(express.json({limit: '15mb'}))
 app.use(cookieParser())
 
 //import routes
@@ -16,8 +16,6 @@ const Posts = require('./routes/postRoutes')
 app.use('/api/posts', Posts)
 const Conversation = require('./routes/conversationRoutes')
 app.use('/api/conversations', Conversation)
-const Admin = require('./routes/adminRoutes')
-app.use('/api/admin', Admin)
 
 
 

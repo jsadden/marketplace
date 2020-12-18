@@ -12,6 +12,9 @@ var postSchema = mongoose.Schema({
     imagePath: {
         type: String
     },
+    imagePublicId: {
+        type: String
+    },
     userEmail: {
         type: String,
         required: true 

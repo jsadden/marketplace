@@ -5,7 +5,6 @@ const {User} = require('../models/userModel')
 
 //authentication middleware
 const {AuthMiddleware} = require('../middleware/authMiddleware')
-const {AdminAuthMiddleware} = require('../middleware/adminAuthMiddleware')
 
 //rate limit middleware
 const rateLimit = require('express-rate-limit')
@@ -22,25 +21,35 @@ const loginUserLimiter = rateLimit({
 
 //add user
 router.post('/add', createUserLimiter, (req,res) => {
+
+    req.body.isAdmin = false
     const user = new User(req.body)
     
     user.save((err, doc) => {
         if (err) {
 
             if (err.code === 11000 && err.keyValue.email) {
-                return res.json({success: false, message: 'This email has already been registered', user: false})
+                return res.json({success: false, message: 'This email has already been registered', userData: false})
             }
             
-            return res.json({success: false, message: "There was an error", user: false})
+            return res.json({success: false, message: "There was an error", userData: false})
         }
         
         user.generateTokens((err,user) => {
             if (err) return res.status(400).send(err)
 
-            return res.cookie('auth', user.accessToken, {httpOnly: true}).json({success: true, message: 'Registration successful', user: doc})
+            return res.cookie('auth', user.accessToken, {httpOnly: true}).json({
+                success: true, 
+                message: 'Registration successful', 
+                userData: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    city: user.city,
+                    isAdmin: user.isAdmin
+                }
+            })
         })
-
-
     })
 })
 
@@ -52,7 +61,9 @@ router.get('/auth', AuthMiddleware, (req,res) => {
         userData: {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            email: req.user.email
+            email: req.user.email,
+            city: req.user.city,
+            isAdmin: req.user.isAdmin
         }
     })
 })
@@ -97,10 +108,12 @@ router.post('/login', loginUserLimiter, (req,res) => {
                 {
                     success: true, 
                     message: 'Login successful', 
-                    user: {
+                    userData: {
                         email: doc.email,
                         firstName: doc.firstName,
-                        lastName: doc.lastName
+                        lastName: doc.lastName,
+                        city: doc.city,
+                        isAdmin: user.isAdmin
                     }
                 })
             })
@@ -131,38 +144,87 @@ router.delete('/delete', AuthMiddleware, (req,res) => {
 })
 
 //change password
-router.post('/changePass', loginUserLimiter, AuthMiddleware, (req,res) => {
+router.patch('/changePass', loginUserLimiter, AuthMiddleware, (req,res) => {
 
     //compare password for verification check
     req.user.comparePassword(req.body.password, (err,match) => {
-        if (err) return res.json({success:false, message: 'Something went wrong', user: false})
+        if (err) return res.json({success:false, message: 'Something went wrong', userData: false})
         
         //password didnt match
-        if (!match) return res.json({success:false, message: 'Password incorrect', user: false})
+        if (!match) return res.json({success:false, message: 'Password incorrect', userData: false})
     
         //set new
         req.user.password = req.body.newPassword
 
         //save
         req.user.save((err,user) => {
-            if (err) return res.json({success:false, message: 'Something went wrong', user: false})
+            if (err) return res.json({success:false, message: 'Something went wrong', userData: false})
 
             return res.json({
                 success:true, 
                 message: 'Password changed', 
-                user: {
+                userData: {
                     email: user.email,
                     firstName: user.firstName,
-                    lastName: user.lastName
+                    lastName: user.lastName,
+                    city: user.city,
+                    isAdmin: user.isAdmin
                 }
             })
         })
     })
 })
 
+//change city
+router.patch('/changeCity', AuthMiddleware, (req,res) => {
+    User.findOneAndUpdate({email: req.user.email}, {city: req.body.city}, {new: true}, (err,user) => {
+        if (err) return res.json({success:false, message: 'Something went wrong', userData: false})
+
+        return res.json({
+            success:true, 
+            message: 'City changed', 
+            userData: {
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                city: user.city,
+                isAdmin: user.isAdmin
+            }
+        })
+    })
+})
+
+//change name
+router.patch('/changeName', AuthMiddleware, (req,res) => {
+    const newBody = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName
+    }
+
+    User.findOneAndUpdate({email: req.user.email}, newBody, {new: true}, (err,user) => {
+        if (err) return res.json({success:false, message: 'Something went wrong', userData: false})
+
+        return res.json({
+            success:true, 
+            message: 'Name changed', 
+            userData: {
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                city: user.city,
+                isAdmin: user.isAdmin
+            }
+        })
+    })
+})
 
 //ban user for a period of time
-router.post('/ban', AdminAuthMiddleware, (req,res) => {
+router.post('/ban', AuthMiddleware, (req,res) => {
+
+    if (!req.user.isAdmin) {
+        return res.json({success:false, message: 'You are unauthorized', user: false})
+    }
+
     User.findOne({email: req.body.email}, (err,user) => {
         if (err) return res.json({success:false, message: 'Something went wrong', user: false})
 
@@ -172,6 +234,8 @@ router.post('/ban', AdminAuthMiddleware, (req,res) => {
         let date = new Date( Date.now() + Number(req.body.banDays) * 24 * 60 * 60 * 1000)
         user.bannedUntil = date
 
+        user.accessToken = undefined
+        user.refreshToken = undefined
 
         user.save((err, doc) => {
             if (err) return res.json({success:false, message: 'Something went wrong', user: false})
@@ -179,12 +243,13 @@ router.post('/ban', AdminAuthMiddleware, (req,res) => {
             return res.json({
                 success:true, 
                 message: 'Ban successful', 
-                user: {
+                userData: {
                     email: doc.email,
                     firstName: doc.firstName,
                     lastName: doc.lastName,
                     banned: doc.banned,
-                    bannedUntil: doc.bannedUntil
+                    bannedUntil: doc.bannedUntil,
+                    isAdmin: user.isAdmin
                 }
             })
         })

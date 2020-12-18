@@ -4,12 +4,18 @@ let AuthMiddleware = (req,res,next) => {
 
     //get access token from cookies
     let token = req.cookies.auth 
-    if (!token) return res.status(401).json({message: 'Not logged in'})
+    if (!token) return res.json({message: 'Not logged in'})
 
     //check for alg attack
     const header = token.split('.')[0]
     const headerString = Buffer.from(header, 'base64').toString('ascii')
-    const headerObj = JSON.parse(headerString)
+    let headerObj
+    try {
+        headerObj = JSON.parse(headerString)
+    } catch (error) {
+        return res.json({message: 'Cookie error'})
+    }
+     
     if (headerObj.alg !== 'HS256') return res.status(401).json({message: 'Incorrect alg detected'})
 
 
@@ -32,7 +38,7 @@ let AuthMiddleware = (req,res,next) => {
                         if (err) return res.json(err)
 
                         req.user = doc
-                        
+                        req.accessToken = newToken
                         //update cookie
                         res.cookie('auth', newToken)
                         return next()
@@ -52,8 +58,10 @@ let AuthMiddleware = (req,res,next) => {
         } else {
 
             //token is valid, set values and continue
+            //console.log(token)
             req.accessToken = token
             req.user = user
+            res.cookie('auth', token)
             return next()
         }
 
