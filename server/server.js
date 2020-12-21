@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser')
 const app = express()
 const dotenv = require('dotenv')
 const result = dotenv.config()
-if (result.error) throw result.error
 
 app.use(express.json({limit: '15mb'}))
 app.use(cookieParser())
