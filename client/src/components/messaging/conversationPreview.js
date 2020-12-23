@@ -27,7 +27,7 @@ class ConversationPreview extends Component {
 
             <div key={this.props.conversation._id} className='row'>
                 
-                <div onClick={() => this.props.showCon(this.props.conversation._id, this.props.conversation.user1, this.props.conversation.user2)} className = 'col-10'>
+                <div onClick={() => this.props.showCon(this.props.conversation._id, this.props.conversation.user1, this.props.conversation.user2)} className = 'col-10 clickable'>
                     
                     {this.props.conversation.user1 === this.props.user.userData.email ? 
                         <h5 className = 'col-9 font-weight-bold'>
