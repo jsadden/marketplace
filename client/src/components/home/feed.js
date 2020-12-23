@@ -12,17 +12,28 @@ import MessagePoster from './messagePoster'
 class Feed extends Component {
 
 
+
     componentDidMount() {
-        this.props.dispatch(getPostsByCity(this.props.user.city, 10))
+        this.props.dispatch(getPostsByCity(this.props.user.city))
     }
-
-
 
     render() {
         return(
             <div>
                 { this.props.posts.posts?
-                    this.props.posts.posts.map((post) => (
+                    this.props.posts.posts
+                    .filter(post => {
+                        let title = post.title.toLowerCase()
+                        let desc = post.description.toLowerCase()
+                        let query = this.props.filter.toLowerCase()
+
+                        if (title.includes(query) || desc.includes(query)) {
+                            return post
+                        } else {
+                            return false
+                        }
+                    })
+                    .map((post) => (
                         <div key={post._id} className='jumbotron'>
                             
                             

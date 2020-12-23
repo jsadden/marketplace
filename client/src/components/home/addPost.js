@@ -6,7 +6,6 @@ import * as Yup from 'yup'
 import {connect} from 'react-redux'
 import {addPost} from '../../store/actions/postActions'
 
-
 //form validation
 const postSchema = Yup.object().shape({
     title: Yup.string().required('This is required'),
@@ -236,15 +235,15 @@ class AddPost extends Component {
                 
                 
                 {this.state.editorOpen?
-                    <div className='row mt-5'>
+                    <div className='row'>
                         <div className='col jumbotron'>
                             {this.buildEditor()}
                         </div>
                     </div>
-                    
+               
                 :
                 
-                    <div className='row justify-content-center text-center mt-5'>
+                    <div className='row justify-content-center text-center '>
                         <div className='col-12 jumbotron'>
                             <h1 className='font-weight-bold'>
                                 Got something to sell?

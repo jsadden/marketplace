@@ -47,11 +47,10 @@ router.post('/add', AuthMiddleware, (req,res) => {
 router.get('/getPosts', AuthMiddleware, (req,res) => {
 
     //get params
-    const limit = parseInt(req.query.limit)
     const city = req.query.city || req.user.city
     
     //find posts in a city
-    Post.find({city: city}).limit(limit).sort({datePosted: -1}).exec((err,posts) => {
+    Post.find({city: city}).sort({datePosted: -1}).exec((err,posts) => {
         if (err) return res.json({success:false, message: 'Something went wrong', posts: false})
 
         return res.json({success:true, message: 'Found posts', posts: posts})
